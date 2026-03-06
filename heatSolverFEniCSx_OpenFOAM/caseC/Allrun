@@ -1,0 +1,23 @@
+#!/bin/sh
+
+# Run from this directory
+cd ${0%/*} || exit 1
+
+
+export PYTHONPATH=${PWD}/../../structure/src/heatSolverFenicsX/src:$PYTHONPATH
+
+which decomposePar
+
+cp -r fluid/0.orig fluid/0
+
+blockMesh -case fluid
+
+decomposePar -force -case fluid
+
+mpirun --np 4 buoyantPimpleFoam -case fluid -parallel -mpi-split-by-appnum : -np 2 python3 -m solver
+
+reconstructPar -case fluid
+
+postProcess -case fluid
+
+#------------------------------------------------------------------------------``

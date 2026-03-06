@@ -1,0 +1,11 @@
+{
+    "end_time": 10,
+    "deltaT": 0.1,
+    "poly_order": 2,
+    "nx": 10,
+    "ny": 10,
+    "nz": 1,
+    "coupled_boundary_type": "neumann",
+    "inner_loop_iterations": 4,
+    "write_interval": 1.0
+}

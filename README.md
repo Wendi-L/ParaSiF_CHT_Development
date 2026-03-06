@@ -9,28 +9,17 @@ It is maintained as a **submodule** of the main ParaSiF repository: [ParaSiF Mai
 
 Ongoing development of ParaSiF new feature on **Conjugate Heat Transfer** between FEniCSx and OpenFOAM via the **[MUI coupling library](https://mxui.github.io/)**.
 
-Key features to be developed:
-
-- Thermal conduction in solid domain
-- Conjugate Heat Transfer between fluid and structure domain
-- Conjugate Heat Transfer between two solid domains
-- Thermal expension in solid domain
-
+This codebase is currently comprised of two solvers which are git submodules to this repository. For the solid region a FEM based solver, [heatSolverFenicX](https://github.com/blairSmcc03/heatSolverFenicsX), is used. For the fluid region Openfoam is used with [Coupled custom boundary conditions](https://github.com/blairSmcc03/customCHTBoundaryConditions) which perform the coupling operations.
 ---
 
-## Compatible Codebase
+## Future Improvements
 
-This solver has been tested and is compatible with **[FEniCSx v0.9.0](https://github.com/FEniCS/dolfinx/releases/tag/v0.9.0.post1)** and **[OpenFOAM v2506](https://www.openfoam.com/news/main-news/openfoam-v2506)**.
+This code is still a work in progress, there several improvements that could be made such as:
 
-> Users are recommended to use this version to ensure full compatibility with ParaSiF FEniCSx solvers.
-
----
-
-## (Suggested) Location in the Main ParaSiF Repository
-
-`ParaSiF/dev/CHT/`
-
----
+- Adding Aitken/fixed relaxation to the MUI fetch to improve convergence during strong coupling.
+- Adding RBF sampler for heat flux across interface to support non-conforming meshes
+- Re-integrate support for temporal sampling when using Strong Coupling (this is not really well defined)
+- Optimise FEniCSx Computational Efficiency.
 
 ## Repository Structure
 
@@ -40,52 +29,62 @@ ParaSiF/dev/CHT/
 │ ├── src/                # ParaSiF-specific OpenFOAM source code folder
 │ │ ├── solvers/          # ParaSiF-specific OpenFOAM solvers
 │ │ └── libs/             # Libs used by OpenFOAM solvers
+│ │ |  ├── customCHTBoundaryConditions/          # custom coupled boundary conditions for openfoam
 │ └── test/               # OpenFOAM unit test folder
 ├── structure/            # structure FEniCSx solvers folder
 │ ├── src/                # ParaSiF-specific FEniCSx source code folder
+│ │ |  ├── heatSolverFenicsX/                   # Solver for the heat equation in solids using FenicsX 
 │ └── test/               # FEniCSx unit test folder
-└── example/              # example and integrated test folder
+└── heatSolverFEniCSx_OpenFOAM              # examples of FEniCSx-OpenFOAM coupling
 ```
 
+---
+## Dependencies
+
+The project combines the dependencies of both submodules. 
+
+**customCHTBoundaryConditions** depends on Openfoam v2506 and MUI. 
+
+heatSolverFenicsX depends on the following packaages. It was tested using Python 3.12.
+
+Required packages:
+- `scipy v1.16.3`
+- `dolfinx v0.9.0`
+- `ufl v2024.2.0`
+- `basix v0.9.0`
+- `mpi4py v4.1.1`
+- `petsc4py v3.24.3`
+- `numpy v2.3.5`
+- `mui4py @ master`
+  
 ---
 
 ## Installation
 
-**Note:** This new feature will be a part of ParaSiF. Follow the main ParaSiF repository instructions to initialise submodules and install global dependencies.
+1. First download the code via git:
+   ```bash
+   git clone https://github.com/blairSmcc03/ParaSiF_CHT_Development.git
+   git submodule init
+   git submodule update
+   ```
+2. Install the dependencies. The best way to do this is using [spack](https://spack.io/)
+   ```bash
+   spack env create <environment name> spack.yaml
+   spack env activate -p <environment name>
+   spack install   # this will take a long time (compiling openfoam, fenics and mui)
+   ```
+## Usage and Example Cases
 
-### Steps
-
-1. **Obtain and install the codebase**
-   - Initialise the FEniCSx and OpenFOAM submodules from the main ParaSiF repository.
-   - Ensure the FEniCSx and OpenFOAM submodules in the main ParaSiF repository are correctly installed by following their instructions.
-
-2. **Install the OpenFOAM solver in this repository**
-   **To Be developed**
-
-## Running Tests and Example Cases
-
-Benchmark cases are located in the test/ folder:
-
-### Steps
-
-1. Navigate to the desired benchmark folder:
-
+Once you have an up-to-date spack environment it is easy to run the example cases to test your implementation. To run caseA for example:
 ```bash
-cd XXX/test/XXX
+cd heatSolverFEniCSx_OpenFOAM/caseA
+./Allrun
 ```
+You can then view the output in Paraview by opening "fluid/fluid.foam" and "solid/output/fenicsx_solid_data.xdmf".
 
-2. Run the simulation:
+To create a new case follow the existing format with the openfoam case in the "fluid" directory and a heatSolverFenicsX case (format specified in heatSolverFenicsX/README.md) in the "solid" directory.
 
-```bash
-./Allrun.sh
-```
-
-3. (Optional) Clean up previous results before rerunning:
-
-```bash
-./Allclean.sh
-```
-4. Check results:
+For now the mesh structure is limited to a simple box.
 
 ## Contributing
 

@@ -1,0 +1,10 @@
+{
+    "lx": 0.2,
+    "ly": 1.0,
+    "lz": 0.01,
+    "kappa": 1600,
+    "alpha": 0.0426667,
+    "initial_temp": 273.15,
+    "left_bc_temp": 273.15,
+    "right_bc_temp": 274.15
+}
